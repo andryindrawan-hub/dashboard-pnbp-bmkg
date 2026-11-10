@@ -2899,6 +2899,32 @@ header p {
 .hxmode span{font-size:12.5px;color:var(--mute);font-weight:600;margin-right:4px}
 .hxmode button{border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);padding:8px 14px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
 .hxmode button.on{background:#1E3A8A;border-color:#1E3A8A;color:#fff}
+
+/* Penyempurnaan tampilan Histori & Proyeksi Target */
+.hxhint{margin:8px 0 12px;padding:8px 11px;border-radius:9px;background:var(--zebra);color:var(--mute);font-size:11.5px;line-height:1.45}
+.hxfoot{margin:8px 2px 0;color:var(--mute);font-size:11.5px}
+.hxmode{padding:9px 12px;margin-bottom:10px}
+.hxctl{gap:10px 12px;padding:11px 13px}
+.hxctl>label{font-size:11.5px;gap:4px}
+.hxctl select,.hxin input{font-size:12px;padding:7px 9px;min-height:34px}
+.hxctl .psbar{flex:1 1 230px}
+.hxctl .psbar>label{padding:8px 11px}
+.hxctl .psbar input{font-size:13px}
+.hxk{gap:10px;margin:10px 0}
+.hxk .zlc{padding:11px 14px;min-height:72px}
+.hxk .zlc small{font-size:11px}
+.hxk .zlc b{font-size:21px}
+.hxsummary{padding:8px 12px;margin:8px 0 12px;font-size:11.5px}
+.gxc{padding:15px 17px}
+.gxc h3{font-size:14px}
+.hxtab{min-width:1100px}
+.hxtab th,.hxtab td{padding:9px 11px;font-size:12px;white-space:nowrap}
+.hxtab th:nth-child(2),.hxtab td:nth-child(2){min-width:245px;max-width:320px;white-space:normal;text-align:left}
+.hxtab th:first-child,.hxtab td:first-child{min-width:42px;text-align:center}
+.hxtab tbody tr[data-i]{cursor:pointer}
+.hxtab tbody tr[data-i]:hover{background:rgba(37,99,235,.09)}
+@media(max-width:700px){.hxctl{display:flex}.hxk{grid-template-columns:1fr}.hxsummary{display:block}.hxsummary span{display:block;margin-top:4px}}
+
 </style>
 </head>
 <body>
@@ -3173,45 +3199,42 @@ const H_MNAME={baseline:'Target Baseline + Pertumbuhan',gabungan:'Gabungan Hibri
 const H_SCEN={konservatif:{n:'Konservatif (Target Usulan Awal)',m:'baseline',g:4.75,w:50,t:'Mengikuti target Usulan Awal; sasaran sekitar +3,5% s.d. +5% dari target tahun terakhir.'},moderat:{n:'Moderat (Batas Negosiasi)',m:'gabungan',g:4.75,w:60,t:'Titik tengah sebagai bahan negosiasi antara target dasar dan kapasitas kas.'},optimis:{n:'Optimis (Kapasitas Riil Kas)',m:'realisasi',g:4.75,w:0,t:'Kapasitas riil kas berdasarkan formula lama (realisasi saja), tanpa penyesuaian.'}};
 
 function parseHist(all){
- const norm=s=>String(s==null?'':s).trim().toLowerCase().replace(/\s+/g,' ').normalize('NFKC');
+ const norm=s=>String(s==null?'':s).normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\u00A0/g,' ').trim().toLowerCase().replace(/\s+/g,' ');
  const idx={};
  for(let hi=0;hi<all.length;hi++){
-  const h=all[hi].map(norm);
-  const find=(...names)=>h.findIndex(x=>names.includes(x));
+  const h=all[hi].map(norm),find=(...names)=>h.findIndex(x=>names.includes(x));
   const c={prov:find('provinsi'),sat:find('satuan kerja','satker'),pp:find('kode pp'),akun:find('akun'),akunFull:find('akun lengkap'),lay:find('uraian tarif lengkap','uraian tarif','layanan'),nilai:find('nilai'),ket:find('keterangan'),tahun:find('tahun')};
-  if(c.sat>=0&&c.lay>=0&&c.nilai>=0&&c.ket>=0&&c.tahun>=0) {Object.assign(idx,c);break;}
+  if(c.sat>=0&&c.lay>=0&&c.nilai>=0&&c.ket>=0&&c.tahun>=0){Object.assign(idx,c);break;}
  }
- if(idx.sat==null||idx.sat<0)return {ty:[],ry:[],rows:[],satkerRows:[]};
- const services=new Map(),satkers=new Map(),yearsT=new Set(),yearsR=new Set(),satkerChild=new Map(),satkerServiceMap=new Map();
- const clean=v=>String(v==null?'':v).trim();
- const key=v=>clean(v).toLowerCase().replace(/\s+/g,' ');
- const ensure=(map,k,name)=>{let x=map.get(k);if(!x){x={name:name,t:{},r:{},children:[]};map.set(k,x)}return x};
- const add=(obj,kind,year,val)=>{if(val==null)return;obj[kind][year]=(obj[kind][year]||0)+val};
- for(let i=0;i<all.length;i++){
-  const r=all[i]; if(!r||!r.length)continue;
+ if(idx.sat==null||idx.sat<0)return {ty:[2024,2025,2026,2027],ry:[2024,2025,2026],rows:[],satkerRows:[]};
+ const services=new Map(),satkers=new Map(),satkerChild=new Map(),satkerServiceMap=new Map();
+ const clean=v=>String(v==null?'':v).normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\u00A0/g,' ').replace(/\s+/g,' ').trim();
+ const key=v=>clean(v).toLowerCase();
+ const ensure=(map,k,name)=>{let x=map.get(k);if(!x){x={name,t:{},r:{},children:[]};map.set(k,x)}return x};
+ const add=(obj,kind,year,val)=>{if(val!=null)obj[kind][year]=(obj[kind][year]||0)+val};
+ for(const r of all){
+  if(!r||!r.length)continue;
   const sat=clean(r[idx.sat]),lay=clean(r[idx.lay]),ket=clean(r[idx.ket]).toUpperCase();
   const year=parseInt(clean(r[idx.tahun]).replace(/[^\d]/g,''),10),val=parseNum(r[idx.nilai]);
   if(!sat||!lay||!Number.isFinite(year)||year<2000||year>2100||val==null)continue;
-  const kind=/^TARGET$/.test(ket)?'t':/^REALISASI$/.test(ket)?'r':null;if(!kind)continue;
-  const prov=clean(r[idx.prov]),sk=key(prov)+'||'+key(sat),lk=key(lay);
-  const s=ensure(services,lk,lay),u=ensure(satkers,sk,sat);if(!u.province)u.province=prov;
+  const kind=ket==='TARGET'?'t':ket==='REALISASI'?'r':null;if(!kind)continue;
+  const prov=idx.prov>=0?clean(r[idx.prov]):'',sk=key(sat),lk=key(lay);
+  const s=ensure(services,lk,lay),u=ensure(satkers,sk,sat);
+  if(!u.province&&prov)u.province=prov;
   add(s,kind,year,val);add(u,kind,year,val);
   const detailKey=sk+'||'+lk;
   let child=satkerChild.get(detailKey);
   if(!child){child={name:sat,province:prov,t:{},r:{}};satkerChild.set(detailKey,child);s.children.push(child)}
   add(child,kind,year,val);
-  const svcKey=sk+'||'+lk;let svc=satkerServiceMap.get(svcKey);
-  if(!svc){svc={name:lay,t:{},r:{}};satkerServiceMap.set(svcKey,svc);u.children.push(svc)}
+  let svc=satkerServiceMap.get(detailKey);
+  if(!svc){svc={name:lay,t:{},r:{}};satkerServiceMap.set(detailKey,svc);u.children.push(svc)}
   add(svc,kind,year,val);
-  (kind==='t'?yearsT:yearsR).add(year);
  }
- const rows=[...services.values()].sort((a,b)=>a.name.localeCompare(b.name,'id'));
- const satkerRows=[...satkers.values()].sort((a,b)=>a.name.localeCompare(b.name,'id'));
- const ty=[...yearsT].sort((a,b)=>a-b),ry=[...yearsR].sort((a,b)=>a-b);
- return {ty:ty,ry:ry,rows:rows,satkerRows:satkerRows};
+ return {ty:[2024,2025,2026,2027],ry:[2024,2025,2026],
+  rows:[...services.values()].sort((a,b)=>a.name.localeCompare(b.name,'id')),
+  satkerRows:[...satkers.values()].sort((a,b)=>a.name.localeCompare(b.name,'id'))};
 }
-
-const hPY=()=>Math.max(...HIST.ty,...HIST.ry,2000)+1;
+const hPY=()=>2028;
 const hCat0=n=>NONTUSI_RE.test(dec(n).trim())?'non':OMC_RE.test(dec(n).trim())?'omc':'tusi';
 function annF(){const mo={jan:0,feb:1,mar:2,apr:3,mei:4,may:4,jun:5,jul:6,agu:7,agt:7,aug:7,sep:8,okt:9,oct:9,nov:10,des:11,dec:11},t=(document.querySelector('.live')||{}).textContent||'',x=t.match(/(\d{1,2})\s+([A-Za-z]{3})[a-z]*\s+(20\d\d)/);
  let d=new Date();if(x&&mo[x[2].toLowerCase()]!=null)d=new Date(+x[3],mo[x[2].toLowerCase()],+x[1]);
@@ -3261,9 +3284,10 @@ function hBody(){
  const foot=`<tr class="gp"><td><td>Total`+HIST.ty.map(y=>`<td>${F(T.t[y]||0)}`).join('')+HIST.ry.map(y=>`<td>${F(T.r[y]||0)}`).join('')+`<td class="hxu">${F(T.us)}<td>${sg(d1)}`;
  const head=`<tr>${th('No','no','hist')}${th(hMode==='satker'?'Satuan Kerja':'Layanan','name','hist')}`+HIST.ty.map(y=>th('Target '+y,'t'+y,'hist')).join('')+HIST.ry.map(y=>th('Realisasi '+y,'r'+y,'hist')).join('')+th('Usulan '+PY,'usul','hist')+th('vs Target '+lt,'dlt','hist')+'</tr>';
  return kpi+`<div class="gxc" style="margin-bottom:12px"><h3>Total per Tahun <small>target, realisasi, dan usulan ${PY}</small></h3>${hBars(T)}<div class="hxlg"><span><i style="background:#2563EB"></i>Target</span><span><i style="background:#0F766E"></i>Realisasi</span><span><i style="background:#F29B1D"></i>Usulan ${PY}</span></div></div>`+(L.length?`<div class="tbl"><div class="scroll"><table class="pnt hxtab"><thead>${head}</thead><tbody>${body}${foot}</tbody></table></div></div>`:`<div class="note">Tidak ada ${hMode==='satker'?'satker':'layanan'} yang cocok.</div>`)}
-function hDesc(){const sc=H_SCEN[hScen],lt=HIST.ty[HIST.ty.length-1],fm=n=>n.toLocaleString('id-ID',{maximumFractionDigits:2}),ly=HIST.ry[HIST.ry.length-1];
- const md={baseline:`Target ${lt} &times; (1 + ${fm(hG)}%). Layanan tanpa target ${lt} tidak mendapat usulan.`,gabungan:`${fm(hW)}% Target Baseline (target ${lt} &times; (1 + ${fm(hG)}%)) + ${fm(100-hW)}% Gabungan Realisasi. Jika hanya satu komponen tersedia, komponen itu yang dipakai.`,realisasi:'Rata-rata dari tiga metode berbasis realisasi: rata-rata, tren linier, dan CAGR (formula lama).',rata:'Rata-rata realisasi tahun-tahun yang tersedia (tahun awal bernilai nol diabaikan).',tren:'Garis tren linier dari realisasi tahunan, diproyeksikan ke tahun usulan.',cagr:'Laju pertumbuhan tahunan majemuk dari realisasi (dibatasi +/-50% per tahun).'}[hMeth];
- return `<b>Parameter aktif</b> &mdash; Skenario: ${sc?sc.n:'Kustom'} &middot; Metode: ${H_MNAME[hMeth]} &middot; Penyesuaian: ${hAdj>0?'+':''}${fm(hAdj)}%${hAnn&&hMeth!='baseline'?' &middot; Realisasi '+ly+' diproyeksikan setahun penuh (&times;'+fm(Math.min(annF(),1.5))+')':''}.<br>${sc&&hScen!='kustom'?sc.t+' ':''}${md}`}
+function hDesc(){
+ const sc=H_SCEN[hScen],fm=n=>n.toLocaleString('id-ID',{maximumFractionDigits:2});
+ return `Proyeksi ${hPY()} · ${sc?sc.n:'Kustom'} · ${H_MNAME[hMeth]} · Pertumbuhan ${fm(hG)}% · Penyesuaian ${fm(hAdj)}%.`;
+}
 function hCtl(){const ly=HIST.ry[HIST.ry.length-1],sc=Object.keys(H_SCEN).map(k=>`<option value="${k}"${k==hScen?' selected':''}>${H_SCEN[k].n}</option>`).join('')+`<option value="kustom"${hScen=='kustom'?' selected':''}>Kustom (atur manual)</option>`,mt=Object.keys(H_MNAME).map(k=>`<option value="${k}"${k==hMeth?' selected':''}>${H_MNAME[k]}</option>`).join(''),usesR=hMeth!='baseline';
  return `<label>Skenario<select id="hscen" onchange="setH('s',this.value)">${sc}</select></label><label>Metode usulan<select onchange="setH('m',this.value)">${mt}</select></label>`+(hMeth=='baseline'||hMeth=='gabungan'?`<label>Pertumbuhan target<span class="hxin"><input type="number" step="0.25" min="-10" max="30" value="${hG}" oninput="setH('g',this.value)">%</span></label>`:'')+(hMeth=='gabungan'?`<label>Bobot target<span class="hxin"><input type="number" step="5" min="0" max="100" value="${hW}" oninput="setH('w',this.value)">%</span></label>`:'')+`<label>Penyesuaian<span class="hxin"><input type="number" step="1" min="-50" max="100" value="${hAdj}" oninput="setH('a',this.value)">%</span></label><label class="hxck" title="${usesR?'Hanya memengaruhi komponen berbasis realisasi. Pengali maks x1,5, hasil tahunan maks 130% dari realisasi tahun sebelumnya.':'Tidak berlaku untuk metode berbasis target.'}"><input type="checkbox"${hAnn&&usesR?' checked':''}${usesR?'':' disabled'} onchange="setH('n',this.checked)"> Proyeksikan realisasi ${ly} setahun penuh (&times;${Math.min(annF(),1.5).toLocaleString('id-ID',{maximumFractionDigits:2})}, maks &times;1,5)</label>`}
 function setH(k,v){let ctl=false;
@@ -3279,10 +3303,10 @@ function setH(k,v){let ctl=false;
  if(ctl){const c=$('hctl');if(c)c.innerHTML=hCtl()}else{const sel=$('hscen');if(sel)sel.value=hScen}
  const e=$('hres');if(e)e.innerHTML=hBody();const d=$('hdesc');if(d)d.innerHTML=hDesc()}
 function hView(){
- const head=`<div class="top"><div><h2>Histori &amp; Proyeksi Target ${hPY()}</h2><p class="sub" style="margin:0">Telusuri histori PNBP dari sisi satuan kerja maupun layanan, termasuk proyeksi target tahun berikutnya.</p></div><div style="display:flex;gap:8px"><button class="b" onclick="prAnim(this)">Cetak PDF</button><button class="b g" onclick="dlAnim(this,exportHist)">Unduh Excel</button></div></div>`;
+ const head=`<div class="top"><div><h2>Histori &amp; Proyeksi Target 2028</h2><p class="sub" style="margin:0">Lihat target 2024–2027, realisasi 2024–2026, dan proyeksi target 2028.</p></div><div style="display:flex;gap:8px"><button class="b" onclick="prAnim(this)">Cetak PDF</button><button class="b g" onclick="dlAnim(this,exportHist)">Unduh Excel</button></div></div>`;
  if(!HIST.rows.length&&!HIST.satkerRows.length)return head+`<div class="gxc"><h3>Data histori belum tersedia</h3><p class="gxtx">Dashboard menunggu tabel histori berbentuk baris ke bawah dengan kolom: <b>NO, PROVINSI, SATUAN KERJA, Kode PP, AKUN, AKUN LENGKAP, Uraian Tarif Lengkap, NILAI, KETERANGAN, TAHUN</b>. Isi KETERANGAN dengan TARGET atau REALISASI. Setiap baris mencatat satu satker, satu layanan/akun, satu jenis nilai, dan satu tahun.</p></div>`;
  const cats=[['all','Semua'],['tusi','Tusi'],['omc','Modifikasi Cuaca'],['non','Non Tusi']];
- return head+`<div class="hxmode"><span>Tampilkan berdasarkan:</span><button class="${hMode==='satker'?'on':''}" onclick="setH('v','satker')">Per Satker</button><button class="${hMode==='layanan'?'on':''}" onclick="setH('v','layanan')">Per Layanan</button></div><div class="hxctl"><div id="hctl">${hCtl()}</div>${hMode==='layanan'?`<div class="hxcat">${cats.map(c=>`<button data-c="${c[0]}" class="${c[0]==hCat?'on':''}" onclick="setH('c','${c[0]}')">${c[1]}</button>`).join('')}</div>`:''}<div class="psbar" style="margin:0;flex:1 1 220px"><label><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" value="${esc(hQ)}" placeholder="Cari ${hMode==='satker'?'satuan kerja':'layanan'}..." aria-label="Cari histori" autocomplete="off" oninput="setH('q',this.value)"></label></div></div><p class="gxtx hxpar" id="hdesc">${hDesc()}</p><div id="hres">${hBody()}</div><p class="gxtx" style="margin-top:10px">Klik nama ${hMode==='satker'?'satker untuk melihat rincian histori setiap layanan':'layanan untuk melihat histori dari masing-masing satker'}. Nilai target dan realisasi dijumlahkan dari baris data sesuai kelompok dan tahun.</p>`}
+ return head+`<div class="hxmode"><span>Tampilkan berdasarkan:</span><button class="${hMode==='satker'?'on':''}" onclick="setH('v','satker')">Per Satker</button><button class="${hMode==='layanan'?'on':''}" onclick="setH('v','layanan')">Per Layanan</button></div><div class="hxctl"><div id="hctl">${hCtl()}</div>${hMode==='layanan'?`<div class="hxcat">${cats.map(c=>`<button data-c="${c[0]}" class="${c[0]==hCat?'on':''}" onclick="setH('c','${c[0]}')">${c[1]}</button>`).join('')}</div>`:''}<div class="psbar" style="margin:0;flex:1 1 220px"><label><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" value="${esc(hQ)}" placeholder="Cari ${hMode==='satker'?'satuan kerja':'layanan'}..." aria-label="Cari histori" autocomplete="off" oninput="setH('q',this.value)"></label></div></div><div class="hxhint" id="hdesc">${hDesc()}</div><div id="hres">${hBody()}</div><p class="hxfoot">Pilih nama pada tabel untuk membuka rincian.</p>`}
 
 function hLine(r,c){const PY=hPY(),ys=[...new Set([...HIST.ty,...HIST.ry,PY])].sort(),vals=[...Object.values(r.t),...Object.values(r.r),c.usul],mx=Math.max(1,...vals),st=niceStep(mx*1.05),N=Math.max(1,Math.ceil(mx*1.05/st)),ax=st*N,W=460,Hh=200,x0=50,x1=W-14,y0=Hh-26,yt=12,X=y=>x0+(x1-x0)*(ys.indexOf(y)+.5)/ys.length,Y=v=>y0-v/ax*(y0-yt);
  let g='';for(let i=0;i<=N;i++){const y=Y(i*st);g+=`<line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="rgba(91,103,135,.22)"/><text x="${x0-6}" y="${y+3}" text-anchor="end" font-size="9" fill="var(--mute)">${i?sh(i*st):0}</text>`}
