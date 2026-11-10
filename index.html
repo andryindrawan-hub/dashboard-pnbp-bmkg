@@ -3266,42 +3266,64 @@ async function exportNol(){const a=nolAgg(),d1=[['No','Nama Satuan Kerja','Provi
  try{const el=document.createElement('a'),u=URL.createObjectURL(blob);el.href=u;el.download='laporan-tarif-rp0-pnbp-2026.xlsx';document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);notify('File Excel tersimpan.')}catch(e){notify('Unduhan gagal, coba lagi.')}}
 /* ===== Legenda warna persentase capaian ===== */
 function legend(){return `<div class="pleg" role="note"><b>Keterangan warna persentase capaian</b><div class="plgi"><span><s class="lg-ok"><i style="width:100%"></i></s>&ge; 100% &mdash; target tercapai atau terlampaui</span><span><s class="lg-mid"><i style="width:70%"></i></s>50% &ndash; 99,99% &mdash; capaian sedang</span><span><s class="lg-low"><i style="width:30%"></i></s>&lt; 50% &mdash; capaian rendah</span><span><s class="lg-na"></s>tanda &ldquo;-&rdquo; &mdash; target Rp0, persentase tidak dihitung</span></div><small>Persentase capaian = realisasi &divide; target &times; 100. Garis terisi penuh saat capaian mencapai 100% atau lebih.</small></div>`}
-/* ===== Histori target & realisasi per tarif + usulan target tahun berikutnya (tabel di kolom AK dst.) ===== */
+/* ===== Histori target & realisasi: sumber khusus LAPORAN LOOKER kolom AL:AU ===== */
 let HIST={ty:[],ry:[],rows:[],satkerRows:[]},hMode='layanan',H_ACTIVE_ROWS=[],hScen='konservatif',hMeth='baseline',hG=4.75,hW=50,hAdj=0,hAnn=false,hCat='all',hQ='';
 const H_MNAME={baseline:'Target Baseline + Pertumbuhan',gabungan:'Gabungan Hibrida (Target + Realisasi)',realisasi:'Gabungan Realisasi (rata-rata 3 metode)',rata:'Rata-rata realisasi',tren:'Tren linier realisasi',cagr:'Pertumbuhan realisasi (CAGR)'};
 /* Skenario cepat. Penyesuaian % tetap tersedia untuk fine-tuning di atas skenario. */
 const H_SCEN={konservatif:{n:'Konservatif (Target Usulan Awal)',m:'baseline',g:4.75,w:50,t:'Mengikuti target Usulan Awal; sasaran sekitar +3,5% s.d. +5% dari target tahun terakhir.'},moderat:{n:'Moderat (Batas Negosiasi)',m:'gabungan',g:4.75,w:60,t:'Titik tengah sebagai bahan negosiasi antara target dasar dan kapasitas kas.'},optimis:{n:'Optimis (Kapasitas Riil Kas)',m:'realisasi',g:4.75,w:0,t:'Kapasitas riil kas berdasarkan formula lama (realisasi saja), tanpa penyesuaian.'}};
 
 function parseHist(all){
- const norm=s=>String(s==null?'':s).normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\u00A0/g,' ').trim().toLowerCase().replace(/\s+/g,' ');
- const idx={};
- for(let hi=0;hi<all.length;hi++){
-  const h=all[hi].map(norm),find=(...names)=>h.findIndex(x=>names.includes(x));
-  const c={prov:find('provinsi'),sat:find('satuan kerja','satker'),pp:find('kode pp'),akun:find('akun'),akunFull:find('akun lengkap'),lay:find('uraian tarif lengkap','uraian tarif','layanan'),nilai:find('nilai'),ket:find('keterangan'),tahun:find('tahun')};
-  if(c.sat>=0&&c.lay>=0&&c.nilai>=0&&c.ket>=0&&c.tahun>=0){Object.assign(idx,c);break;}
- }
- if(idx.sat==null||idx.sat<0)return {ty:[2024,2025,2026,2027],ry:[2024,2025,2026],rows:[],satkerRows:[]};
+ // Sumber histori ditetapkan secara spesifik pada sheet LAPORAN LOOKER,
+ // kolom AL:AU. Indeks CSV berbasis nol: AL=37 sampai AU=46.
+ const C={no:37,prov:38,sat:39,pp:40,akun:41,akunFull:42,lay:43,nilai:44,ket:45,tahun:46};
+ const norm=s=>String(s==null?'':s).normalize('NFKC')
+  .replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\u00A0/g,' ')
+  .trim().toLowerCase().replace(/\s+/g,' ');
+ const expected=['no','provinsi','satuan kerja','kode pp','akun','akun lengkap','layanan','nilai','keterangan','tahun'];
+ const headerAt=(all||[]).findIndex(row=>{
+  const block=(row||[]).slice(C.no,C.tahun+1).map(norm);
+  if(block.length<10)return false;
+  return expected.every((v,i)=>{
+   const actual=block[i];
+   if(i===6)return actual==='layanan'||actual==='uraian tarif lengkap'||actual==='uraian tarif';
+   if(i===2)return actual==='satuan kerja'||actual==='satker';
+   if(i===5)return actual==='akun lengkap';
+   return actual===v;
+  });
+ });
+ const empty={ty:[2024,2025,2026,2027],ry:[2024,2025,2026],rows:[],satkerRows:[]};
+ if(headerAt<0)return empty;
  const services=new Map(),satkers=new Map(),satkerChild=new Map(),satkerServiceMap=new Map();
- const clean=v=>String(v==null?'':v).normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\u00A0/g,' ').replace(/\s+/g,' ').trim();
- const key=v=>clean(v).toLowerCase();
+ const clean=v=>String(v==null?'':v).normalize('NFKC')
+  .replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\u00A0/g,' ')
+  .replace(/\s+/g,' ').trim();
+ const key=v=>clean(v).toLocaleLowerCase('id-ID');
  const ensure=(map,k,name)=>{let x=map.get(k);if(!x){x={name,t:{},r:{},children:[]};map.set(k,x)}return x};
  const add=(obj,kind,year,val)=>{if(val!=null)obj[kind][year]=(obj[kind][year]||0)+val};
- for(const r of all){
-  if(!r||!r.length)continue;
-  const sat=clean(r[idx.sat]),lay=clean(r[idx.lay]),ket=clean(r[idx.ket]).toUpperCase();
-  const year=parseInt(clean(r[idx.tahun]).replace(/[^\d]/g,''),10),val=parseNum(r[idx.nilai]);
-  if(!sat||!lay||!Number.isFinite(year)||year<2000||year>2100||val==null)continue;
-  const kind=ket==='TARGET'?'t':ket==='REALISASI'?'r':null;if(!kind)continue;
-  const prov=idx.prov>=0?clean(r[idx.prov]):'',sk=key(sat),lk=key(lay);
-  const s=ensure(services,lk,lay),u=ensure(satkers,sk,sat);
-  if(!u.province&&prov)u.province=prov;
-  add(s,kind,year,val);add(u,kind,year,val);
+ const isTotal=v=>/^(grand\s*)?(total|jumlah)\b/i.test(clean(v));
+ for(let i=headerAt+1;i<all.length;i++){
+  const row=all[i]||[];
+  const sat=clean(row[C.sat]),lay=clean(row[C.lay]);
+  const prov=clean(row[C.prov]);
+  const ket=clean(row[C.ket]).toUpperCase().replace(/[^A-Z]/g,'');
+  const year=Number(clean(row[C.tahun]).replace(/[^0-9]/g,''));
+  const val=parseNum(row[C.nilai]);
+  if(!sat||!lay||isTotal(sat)||isTotal(lay)||!Number.isInteger(year)||val==null)continue;
+  const kind=ket==='TARGET'?'t':ket==='REALISASI'?'r':null;
+  if(!kind)continue;
+  // Target hanya 2024-2027; realisasi hanya 2024-2026.
+  if(kind==='t'&&![2024,2025,2026,2027].includes(year))continue;
+  if(kind==='r'&&![2024,2025,2026].includes(year))continue;
+  const sk=key(sat),lk=key(lay);
+  const service=ensure(services,lk,lay),unit=ensure(satkers,sk,sat);
+  if(!unit.province&&prov)unit.province=prov;
+  add(service,kind,year,val);add(unit,kind,year,val);
   const detailKey=sk+'||'+lk;
   let child=satkerChild.get(detailKey);
-  if(!child){child={name:sat,province:prov,t:{},r:{}};satkerChild.set(detailKey,child);s.children.push(child)}
+  if(!child){child={name:sat,province:prov,t:{},r:{}};satkerChild.set(detailKey,child);service.children.push(child)}
   add(child,kind,year,val);
   let svc=satkerServiceMap.get(detailKey);
-  if(!svc){svc={name:lay,t:{},r:{}};satkerServiceMap.set(detailKey,svc);u.children.push(svc)}
+  if(!svc){svc={name:lay,t:{},r:{}};satkerServiceMap.set(detailKey,svc);unit.children.push(svc)}
   add(svc,kind,year,val);
  }
  return {ty:[2024,2025,2026,2027],ry:[2024,2025,2026],
