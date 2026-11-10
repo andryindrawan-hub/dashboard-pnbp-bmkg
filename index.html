@@ -2970,6 +2970,35 @@ header p {
 .hxtab{border-collapse:separate!important;border-spacing:0!important}
 .hxtab th,.hxtab td{box-sizing:border-box}
 
+
+/* Tata letak detail histori: grafik dan tabel histori sejajar, tabel metode melebar penuh */
+.pmdc:has(.hxm){max-width:1040px}
+.hxm{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(330px,.95fr);gap:16px;align-items:stretch}
+.hxchart,.hxtable-history{min-width:0}
+.hxchart{padding:12px 14px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card);display:flex;flex-direction:column;justify-content:center}
+.hxchart>svg{display:block;width:100%;height:auto;max-height:260px}
+.hxtable-history .tbl{height:100%}
+.hxtable-history .scroll{height:100%;max-height:none}
+.hxtable-history .pnt{width:100%;table-layout:fixed}
+.hxtable-history .pnt th,.hxtable-history .pnt td{padding:11px 12px;font-size:12.5px}
+.hxmethod{margin-top:14px;padding:13px 14px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.hxmethod-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 9px}
+.hxmethod-head h3{margin:0;font-size:14px;color:var(--ink)}
+.hxmethod-head span{font-size:11.5px;color:var(--mute)}
+.hxmethod .tbl{width:100%}
+.hxmethod .scroll{max-height:none;overflow-x:auto}
+.hxmethod .pnt{width:100%;min-width:560px;table-layout:fixed}
+.hxmethod .pnt th,.hxmethod .pnt td{padding:12px 14px;font-size:12.5px}
+.hxmethod .pnt th:first-child,.hxmethod .pnt td:first-child{width:58%;white-space:normal}
+.hxmethod .pnt th:nth-child(2),.hxmethod .pnt td:nth-child(2){width:25%;text-align:right}
+.hxmethod .pnt th:nth-child(3),.hxmethod .pnt td:nth-child(3){width:17%;text-align:right}
+.hxmethod .gxtx{margin:9px 0 0;font-size:11.5px;color:var(--mute)}
+@media(max-width:760px){
+ .hxm{grid-template-columns:minmax(0,1fr)}
+ .hxmethod-head{align-items:flex-start;flex-direction:column;gap:3px}
+ .hxchart>svg{max-height:220px}
+}
+
 </style>
 </head>
 <body>
@@ -3369,7 +3398,7 @@ function showHist(i){
  const childTitle=hMode==='satker'?'Rincian Layanan':'Rincian Satker';
  const children=(r.children||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'id'));
  const childTable=children.length?`<div class="tbl" style="margin-top:10px"><div class="scroll"><table class="pnt"><thead><tr><th>No<th>${hMode==='satker'?'Layanan':'Nama Satker'}${HIST.ty.map(y=>`<th>Target ${y}`).join('')}${HIST.ry.map(y=>`<th>Realisasi ${y}`).join('')}<th>Total Target<th>Total Realisasi</thead><tbody>${children.map((x,j)=>{const tt=Object.values(x.t).reduce((a,b)=>a+b,0),rr=Object.values(x.r).reduce((a,b)=>a+b,0);return `<tr><td>${j+1}<td>${tc(dec(x.name))}${hMode==='layanan'&&x.province?` <small style="color:var(--mute)">${tc(dec(x.province))}</small>`:''}${HIST.ty.map(y=>`<td>${x.t[y]==null?'-':F(x.t[y])}`).join('')}${HIST.ry.map(y=>`<td>${x.r[y]==null?'-':F(x.r[y])}`).join('')}<td>${F(tt)}<td>${F(rr)}`}).join('')}</tbody></table></div></div>`:'<div class="note">Rincian belum tersedia.</div>';
- const body=(c.n||c.hasT)?`<div class="hxm"><div>${hLine(r,c)}<div class="hxlg"><span><i style="background:#2563EB"></i>Target</span><span><i style="background:#0F766E"></i>Realisasi</span><span><i style="background:#F29B1D"></i>Usulan ${PY}</span></div></div><div><div class="tbl"><div class="scroll">${dt}</div></div><div class="tbl" style="margin-top:10px"><div class="scroll">${mt}</div></div><p class="gxtx" style="margin:8px 0 0">Penyesuaian ${hAdj>=0?'+':''}${hAdj}% sudah termasuk pada setiap metode. Baris tebal = metode yang sedang dipilih.</p></div></div>`:'<div class="note">Data histori belum mencukupi untuk menghitung usulan target.</div>';
+ const body=(c.n||c.hasT)?`<div class="hxm"><div class="hxchart">${hLine(r,c)}<div class="hxlg"><span><i style="background:#2563EB"></i>Target</span><span><i style="background:#0F766E"></i>Realisasi</span><span><i style="background:#F29B1D"></i>Usulan ${PY}</span></div></div><div class="hxtable-history"><div class="tbl"><div class="scroll">${dt}</div></div></div></div><section class="hxmethod"><div class="hxmethod-head"><h3>Perbandingan Metode Usulan ${PY}</h3><span>Baris tebal menunjukkan metode yang dipilih</span></div><div class="tbl"><div class="scroll">${mt}</div></div><p class="gxtx">Penyesuaian ${hAdj>=0?'+':''}${hAdj}% sudah diterapkan pada setiap metode.</p></section>`:'<div class="note">Data histori belum mencukupi untuk menghitung usulan target.</div>';
  $('rds').textContent='Histori & Usulan Target '+PY+' · '+childTitle;$('rdt').textContent=tc(dec(r.name));$('rdb').innerHTML=body+`<h3 style="font-size:14px;margin:18px 0 8px">${childTitle} (${children.length})</h3>${childTable}`;$('rd').hidden=false;try{$('rdx').focus()}catch(e){}
 }
 async function exportHist(){if(typeof XLSX=='undefined'){notify('Pustaka Excel belum termuat, coba lagi sebentar.');return}
