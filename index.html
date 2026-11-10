@@ -2954,6 +2954,22 @@ header p {
 .hxfoot{font-size:10.5px;margin-top:6px}
 @media(max-width:760px){.hxk{grid-template-columns:1fr 1fr}.hxk .zlc:last-child{grid-column:1/-1}.hxctl{align-items:flex-start}.hxctl #hctl{width:100%}.gxc svg{height:190px;max-height:190px}}
 
+
+/* Perbaikan akhir: pencarian tepat di atas tabel dan kolom lengket tanpa celah */
+.hxsearch{width:100%;margin:10px 0 7px;position:relative}
+.hxsearch label{height:38px;padding:0 12px;border:1px solid #d8e1ef;border-radius:9px;background:#fff;display:flex;align-items:center;gap:9px;box-sizing:border-box}
+.hxsearch input{width:100%;min-width:0;height:100%;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;font-size:12.5px!important;color:var(--ink)}
+.hxsearch label:focus-within{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.09)}
+/* Hindari artefak garis putih pada dua kolom pertama saat tabel digeser horizontal. */
+.hxtab td:nth-child(-n+2),.hxtab th:nth-child(-n+2){position:static!important;left:auto!important;z-index:auto!important}
+.hxtab th:nth-child(-n+2){background:#1D4ED8!important}
+.hxtab tbody tr:nth-child(even) td:nth-child(-n+2){background:color-mix(in srgb,var(--card) 94%,#64748B)!important}
+.hxtab tbody tr.gp td:nth-child(-n+2){background:color-mix(in srgb,var(--card) 90%,#0a2fc4)!important}
+.hxtab td:nth-child(2){border-left:1px solid var(--line)}
+.hxtab th:nth-child(2){border-left:1px solid rgba(255,255,255,.22)}
+.hxtab{border-collapse:separate!important;border-spacing:0!important}
+.hxtab th,.hxtab td{box-sizing:border-box}
+
 </style>
 </head>
 <body>
@@ -3312,7 +3328,7 @@ function hBody(){
   return `<tr data-i="${a[3]}"><td>${a[5]}<td>${tc(dec(r.name))}`+HIST.ty.map(y=>`<td>${fmt(r.t[y])}`).join('')+HIST.ry.map(y=>`<td>${fmt(r.r[y])}`).join('')+`<td class="hxu">${c.usul>0?F(c.usul):'-'}<td class="${dl==null?'':dl>=0?'hxup':'hxdn'}">${sg(dl)}`}).join('');
  const foot=`<tr class="gp"><td><td>Total`+HIST.ty.map(y=>`<td>${F(T.t[y]||0)}`).join('')+HIST.ry.map(y=>`<td>${F(T.r[y]||0)}`).join('')+`<td class="hxu">${F(T.us)}<td>${sg(d1)}`;
  const head=`<tr>${th('No','no','hist')}${th(hMode==='satker'?'Satuan Kerja':'Layanan','name','hist')}`+HIST.ty.map(y=>th('Target '+y,'t'+y,'hist')).join('')+HIST.ry.map(y=>th('Realisasi '+y,'r'+y,'hist')).join('')+th('Usulan '+PY,'usul','hist')+th('vs Target '+lt,'dlt','hist')+'</tr>';
- return kpi+`<div class="gxc" style="margin-bottom:12px"><h3>Total per Tahun <small>target, realisasi, dan usulan ${PY}</small></h3>${hBars(T)}<div class="hxlg"><span><i style="background:#2563EB"></i>Target</span><span><i style="background:#0F766E"></i>Realisasi</span><span><i style="background:#F29B1D"></i>Usulan ${PY}</span></div></div>`+(L.length?`<div class="tbl"><div class="scroll"><table class="pnt hxtab"><thead>${head}</thead><tbody>${body}${foot}</tbody></table></div></div>`:`<div class="note">Tidak ada ${hMode==='satker'?'satker':'layanan'} yang cocok.</div>`)}
+ return kpi+`<div class="gxc" style="margin-bottom:12px"><h3>Total per Tahun <small>target, realisasi, dan usulan ${PY}</small></h3>${hBars(T)}<div class="hxlg"><span><i style="background:#2563EB"></i>Target</span><span><i style="background:#0F766E"></i>Realisasi</span><span><i style="background:#F29B1D"></i>Usulan ${PY}</span></div></div>`+(L.length?`<div class="hxsearch"><label><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" value="${esc(hQ)}" placeholder="Cari ${hMode==='satker'?'nama satuan kerja':'nama layanan'}..." aria-label="Cari histori" autocomplete="off" oninput="setH('q',this.value)"></label></div><div class="tbl"><div class="scroll"><table class="pnt hxtab"><thead>${head}</thead><tbody>${body}${foot}</tbody></table></div></div>`:`<div class="note">Tidak ada ${hMode==='satker'?'satker':'layanan'} yang cocok.</div>`)}
 function hDesc(){
  const sc=H_SCEN[hScen],fm=n=>n.toLocaleString('id-ID',{maximumFractionDigits:2});
  return `Proyeksi ${hPY()} · ${sc?sc.n:'Kustom'} · ${H_MNAME[hMeth]} · Pertumbuhan ${fm(hG)}% · Penyesuaian ${fm(hAdj)}%.`;
@@ -3335,7 +3351,7 @@ function hView(){
  const head=`<div class="top"><div><h2>Histori &amp; Proyeksi Target 2028</h2><p class="sub" style="margin:0">Lihat target 2024–2027, realisasi 2024–2026, dan proyeksi target 2028.</p></div><div style="display:flex;gap:8px"><button class="b" onclick="prAnim(this)">Cetak PDF</button><button class="b g" onclick="dlAnim(this,exportHist)">Unduh Excel</button></div></div>`;
  if(!HIST.rows.length&&!HIST.satkerRows.length)return head+`<div class="gxc"><h3>Data histori belum tersedia</h3><p class="gxtx">Dashboard menunggu tabel histori berbentuk baris ke bawah dengan kolom: <b>NO, PROVINSI, SATUAN KERJA, Kode PP, AKUN, AKUN LENGKAP, Uraian Tarif Lengkap, NILAI, KETERANGAN, TAHUN</b>. Isi KETERANGAN dengan TARGET atau REALISASI. Setiap baris mencatat satu satker, satu layanan/akun, satu jenis nilai, dan satu tahun.</p></div>`;
  const cats=[['all','Semua'],['tusi','Tusi'],['omc','Modifikasi Cuaca'],['non','Non Tusi']];
- return head+`<div class="hxmode"><span>Tampilan data</span><button class="${hMode==='satker'?'on':''}" onclick="setH('v','satker')">Per Satker</button><button class="${hMode==='layanan'?'on':''}" onclick="setH('v','layanan')">Per Layanan</button></div><div class="hxsearch"><label><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" value="${esc(hQ)}" placeholder="Cari ${hMode==='satker'?'nama satuan kerja':'nama layanan'}..." aria-label="Cari histori" autocomplete="off" oninput="setH('q',this.value)"></label></div><div class="hxctl"><div id="hctl">${hCtl()}</div>${hMode==='layanan'?`<div class="hxcat">${cats.map(c=>`<button data-c="${c[0]}" class="${c[0]==hCat?'on':''}" onclick="setH('c','${c[0]}')">${c[1]}</button>`).join('')}</div>`:''}</div><div class="hxhint" id="hdesc">${hDesc()}</div><div id="hres">${hBody()}</div><p class="hxfoot">Pilih nama pada tabel untuk membuka rincian.</p>`}
+ return head+`<div class="hxmode"><span>Tampilan data</span><button class="${hMode==='satker'?'on':''}" onclick="setH('v','satker')">Per Satker</button><button class="${hMode==='layanan'?'on':''}" onclick="setH('v','layanan')">Per Layanan</button></div><div class="hxctl"><div id="hctl">${hCtl()}</div>${hMode==='layanan'?`<div class="hxcat">${cats.map(c=>`<button data-c="${c[0]}" class="${c[0]==hCat?'on':''}" onclick="setH('c','${c[0]}')">${c[1]}</button>`).join('')}</div>`:''}</div><div class="hxhint" id="hdesc">${hDesc()}</div><div id="hres">${hBody()}</div><p class="hxfoot">Pilih nama pada tabel untuk membuka rincian.</p>`}
 
 function hLine(r,c){const PY=hPY(),ys=[...new Set([...HIST.ty,...HIST.ry,PY])].sort(),vals=[...Object.values(r.t),...Object.values(r.r),c.usul],mx=Math.max(1,...vals),st=niceStep(mx*1.05),N=Math.max(1,Math.ceil(mx*1.05/st)),ax=st*N,W=460,Hh=200,x0=50,x1=W-14,y0=Hh-26,yt=12,X=y=>x0+(x1-x0)*(ys.indexOf(y)+.5)/ys.length,Y=v=>y0-v/ax*(y0-yt);
  let g='';for(let i=0;i<=N;i++){const y=Y(i*st);g+=`<line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="rgba(91,103,135,.22)"/><text x="${x0-6}" y="${y+3}" text-anchor="end" font-size="9" fill="var(--mute)">${i?sh(i*st):0}</text>`}
