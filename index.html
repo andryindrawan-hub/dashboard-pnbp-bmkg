@@ -3048,6 +3048,46 @@ header p {
 #hres .hxtab th,#hres .hxtab td{box-sizing:border-box;}
 #hres .hxsearch{position:relative;z-index:1;}
 
+
+
+/* Konfirmasi skenario - khusus menu Histori & Proyeksi Target */
+.hxscenario-overlay[hidden]{display:none!important}
+.hxscenario-overlay{position:fixed;inset:0;z-index:110;display:grid;place-items:center;padding:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(3px)}
+.hxscenario-card{width:min(100%,560px);background:var(--card);color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--green);border-radius:17px;padding:22px 24px 20px;box-shadow:0 22px 65px rgba(15,23,42,.28);animation:hxscenario-in .18s ease-out}
+@keyframes hxscenario-in{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+.hxscenario-kicker{font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--green);margin-bottom:9px}
+.hxscenario-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.hxscenario-tag{display:inline-flex;padding:4px 9px;border-radius:99px;background:rgba(15,118,110,.1);color:var(--green);font-size:10.5px;font-weight:700}
+.hxscenario-top h2{font-size:19px;line-height:1.3;margin:8px 0 0;color:var(--ink)}
+.hxscenario-close{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:var(--zebra);color:var(--mute);font-size:21px;cursor:pointer}
+.hxscenario-desc{margin:13px 0 14px;color:var(--mute);font-size:13px;line-height:1.6}
+.hxscenario-formula{padding:12px 14px;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:10px;background:var(--zebra)}
+.hxscenario-formula small{display:block;font-size:10.5px;font-weight:700;color:var(--mute);margin-bottom:5px}
+.hxscenario-formula p{margin:0;color:var(--ink);font-size:12.5px;line-height:1.55;font-weight:600}
+.hxscenario-list{margin:13px 0 18px;padding-left:20px;color:var(--mute);font-size:12px;line-height:1.65}
+.hxscenario-list li+li{margin-top:3px}
+.hxscenario-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--line)}
+.hxscenario-actions button{border-radius:9px;padding:9px 15px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.hxscenario-cancel{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.hxscenario-yes{background:var(--blue);color:#fff;border:1px solid var(--blue)}
+.hxscenario-yes:hover{filter:brightness(1.07)}
+@media(max-width:560px){.hxscenario-overlay{padding:12px}.hxscenario-card{padding:18px 16px 15px}.hxscenario-top h2{font-size:17px}.hxscenario-actions{display:grid;grid-template-columns:1fr 1.5fr}.hxscenario-actions button{padding:10px 9px}}
+
+/* Bekukan dua kolom identitas saat tabel histori digulir horizontal. */
+#hres .hxtab,#rdb .hxchildtab{border-collapse:separate!important;border-spacing:0!important;table-layout:fixed;min-width:1180px}
+#hres .hxtab th,#hres .hxtab td,#rdb .hxchildtab th,#rdb .hxchildtab td{box-sizing:border-box}
+#hres .hxtab th:first-child,#hres .hxtab td:first-child,#rdb .hxchildtab th:first-child,#rdb .hxchildtab td:first-child{position:sticky!important;left:0!important;width:58px;min-width:58px;max-width:58px;text-align:center;}
+#hres .hxtab th:nth-child(2),#hres .hxtab td:nth-child(2),#rdb .hxchildtab th:nth-child(2),#rdb .hxchildtab td:nth-child(2){position:sticky!important;left:58px!important;width:270px;min-width:270px;max-width:300px;text-align:left;white-space:normal;overflow-wrap:anywhere;box-shadow:1px 0 0 var(--line)}
+#hres .hxtab thead th,#rdb .hxchildtab thead th{position:sticky!important;top:0!important;z-index:24!important;background:#1D4ED8!important;color:#fff!important;vertical-align:middle}
+#hres .hxtab thead th:first-child,#rdb .hxchildtab thead th:first-child{left:0!important;z-index:32!important}
+#hres .hxtab thead th:nth-child(2),#rdb .hxchildtab thead th:nth-child(2){left:58px!important;z-index:31!important}
+#hres .hxtab tbody td:first-child,#rdb .hxchildtab tbody td:first-child{z-index:12!important;background:var(--card)}
+#hres .hxtab tbody td:nth-child(2),#rdb .hxchildtab tbody td:nth-child(2){z-index:11!important;background:var(--card)}
+#hres .hxtab tbody tr:nth-child(even) td:first-child,#hres .hxtab tbody tr:nth-child(even) td:nth-child(2),#rdb .hxchildtab tbody tr:nth-child(even) td:first-child,#rdb .hxchildtab tbody tr:nth-child(even) td:nth-child(2){background:var(--zebra)}
+#hres .hxtab tbody tr.gp td:first-child,#hres .hxtab tbody tr.gp td:nth-child(2){background:color-mix(in srgb,var(--card) 90%,#0a2fc4)}
+#hres .hxtab tbody tr[data-i]:hover td:first-child,#hres .hxtab tbody tr[data-i]:hover td:nth-child(2){background:color-mix(in srgb,var(--card) 82%,#2563eb)}
+@media(max-width:760px){#hres .hxtab th:nth-child(2),#hres .hxtab td:nth-child(2),#rdb .hxchildtab th:nth-child(2),#rdb .hxchildtab td:nth-child(2){width:220px;min-width:220px;max-width:240px}}
+
 </style>
 </head>
 <body>
@@ -3068,6 +3108,16 @@ header p {
 </div>
 <div id="t" role="status"></div>
 <div id="rd" class="pmd" role="dialog" aria-modal="true" aria-labelledby="rdt" hidden><div class="pmdc"><div class="pmdh"><div><small id="rds">Rincian per Akun Layanan</small><h3 id="rdt"></h3></div><button id="rdx" class="pmdx" aria-label="Tutup" onclick="closeDet()">&times;</button></div><div id="rdb"></div></div></div>
+<div id="hscenarioModal" class="hxscenario-overlay" role="dialog" aria-modal="true" aria-labelledby="hscenarioTitle" aria-describedby="hscenarioDesc" hidden onclick="if(event.target===this)closeHScenario()">
+ <section class="hxscenario-card">
+  <div class="hxscenario-kicker">KONFIRMASI SKENARIO PROYEKSI</div>
+  <div class="hxscenario-top"><div><span id="hscenarioTag" class="hxscenario-tag"></span><h2 id="hscenarioTitle">Pilih skenario</h2></div><button type="button" class="hxscenario-close" aria-label="Tutup" onclick="closeHScenario()">&times;</button></div>
+  <p id="hscenarioDesc" class="hxscenario-desc"></p>
+  <div class="hxscenario-formula"><small>Dasar perhitungan</small><p id="hscenarioFormula"></p></div>
+  <ul id="hscenarioList" class="hxscenario-list"></ul>
+  <div class="hxscenario-actions"><button type="button" class="hxscenario-cancel" onclick="closeHScenario()">Kembali</button><button type="button" id="hscenarioYes" class="hxscenario-yes" onclick="confirmHScenario()">Ya, gunakan skenario ini</button></div>
+ </section>
+</div>
 <div id="wg" class="pwg" role="dialog" aria-modal="true" aria-labelledby="wgt" hidden><div class="pwc"><button class="pwx" id="wx" aria-label="Tutup">&times;</button><h2 id="wgt">Selamat Datang</h2><p>Portal Dashboard Realisasi PNBP BMKG 2026<br>Tim Rencana dan Pembiayaan &middot; Biro Perencanaan &middot; BMKG</p><div class="pwm"><button class="pwi" id="wm2"><b>1</b><span>Beranda Utama</span></button><button class="pwi" id="wm4"><b>2</b><span>Peta Sebaran Satker</span></button><button class="pwi" id="wm1" aria-expanded="false"><b>3</b><span>Laporan Realisasi 2026</span><i>&#9662;</i></button><div class="pws" id="wsub" hidden></div><button class="pwi" id="wm5"><b>4</b><span>Histori &amp; Proyeksi Target</span></button><button class="pwi" id="wm3"><b>5</b><span>Grafik &amp; Analitik</span></button></div><button class="pwmu" id="wm" aria-label="Nyalakan musik"><svg class="poff" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor"/><path d="M16 9l6 6M22 9l-6 6"/></svg><svg class="pon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M18.5 5.5a9 9 0 010 13"/></svg><span>Musik: Mati</span></button></div></div>
 <script>
 const $=id=>document.getElementById(id);
@@ -3439,7 +3489,42 @@ function hDesc(){
  return `Proyeksi ${hPY()} · ${sc?sc.n:'Kustom'} · ${H_MNAME[hMeth]} · Pertumbuhan ${fm(hG)}% · Penyesuaian ${fm(hAdj)}%.`;
 }
 function hCtl(){const ly=HIST.ry[HIST.ry.length-1],sc=Object.keys(H_SCEN).map(k=>`<option value="${k}"${k==hScen?' selected':''}>${H_SCEN[k].n}</option>`).join('')+`<option value="kustom"${hScen=='kustom'?' selected':''}>Kustom (atur manual)</option>`,mt=Object.keys(H_MNAME).map(k=>`<option value="${k}"${k==hMeth?' selected':''}>${H_MNAME[k]}</option>`).join(''),usesR=hMeth!='baseline';
- return `<label>Skenario<select id="hscen" onchange="setH('s',this.value)">${sc}</select></label><label>Metode usulan<select onchange="setH('m',this.value)">${mt}</select></label>`+(hMeth=='baseline'||hMeth=='gabungan'?`<label>Pertumbuhan target<span class="hxin"><input type="number" step="0.25" min="-10" max="30" value="${hG}" oninput="setH('g',this.value)">%</span></label>`:'')+(hMeth=='gabungan'?`<label>Bobot target<span class="hxin"><input type="number" step="5" min="0" max="100" value="${hW}" oninput="setH('w',this.value)">%</span></label>`:'')+`<label>Penyesuaian<span class="hxin"><input type="number" step="1" min="-50" max="100" value="${hAdj}" oninput="setH('a',this.value)">%</span></label><label class="hxck" title="${usesR?'Hanya memengaruhi komponen berbasis realisasi. Pengali maks x1,5, hasil tahunan maks 130% dari realisasi tahun sebelumnya.':'Tidak berlaku untuk metode berbasis target.'}"><input type="checkbox"${hAnn&&usesR?' checked':''}${usesR?'':' disabled'} onchange="setH('n',this.checked)"> Proyeksikan realisasi ${ly} setahun penuh (&times;${Math.min(annF(),1.5).toLocaleString('id-ID',{maximumFractionDigits:2})}, maks &times;1,5)</label>`}
+ return `<label>Skenario<select id="hscen" onchange="askHScenario(this.value)">${sc}</select></label><label>Metode usulan<select onchange="setH('m',this.value)">${mt}</select></label>`+(hMeth=='baseline'||hMeth=='gabungan'?`<label>Pertumbuhan target<span class="hxin"><input type="number" step="0.25" min="-10" max="30" value="${hG}" oninput="setH('g',this.value)">%</span></label>`:'')+(hMeth=='gabungan'?`<label>Bobot target<span class="hxin"><input type="number" step="5" min="0" max="100" value="${hW}" oninput="setH('w',this.value)">%</span></label>`:'')+`<label>Penyesuaian<span class="hxin"><input type="number" step="1" min="-50" max="100" value="${hAdj}" oninput="setH('a',this.value)">%</span></label><label class="hxck" title="${usesR?'Hanya memengaruhi komponen berbasis realisasi. Pengali maks x1,5, hasil tahunan maks 130% dari realisasi tahun sebelumnya.':'Tidak berlaku untuk metode berbasis target.'}"><input type="checkbox"${hAnn&&usesR?' checked':''}${usesR?'':' disabled'} onchange="setH('n',this.checked)"> Proyeksikan realisasi ${ly} setahun penuh (&times;${Math.min(annF(),1.5).toLocaleString('id-ID',{maximumFractionDigits:2})}, maks &times;1,5)</label>`}
+let hPendingScenario=null;
+const H_SCENARIO_INFO={
+ konservatif:{title:'Konservatif (Target Usulan Awal)',tag:'Pendekatan berbasis target',desc:'Menjaga usulan tetap dekat dengan target tahun sebelumnya. Cocok sebagai angka usulan awal yang hati-hati.',formula:'Target 2027 × (1 + pertumbuhan target 4,75%), kemudian penyesuaian. Metode yang digunakan adalah Target Baseline + Pertumbuhan.',details:['Menggunakan target 2027 sebagai titik dasar.','Pertumbuhan awal skenario: 4,75%.','Tidak memakai komponen proyeksi realisasi untuk membentuk nilai usulan.']},
+ moderat:{title:'Moderat (Batas Negosiasi)',tag:'Pendekatan gabungan',desc:'Menggabungkan target dasar dengan kapasitas berdasarkan realisasi. Cocok sebagai titik tengah untuk bahan pembahasan atau negosiasi.',formula:'60% × target baseline + 40% × komponen realisasi (rata-rata, tren linier, dan CAGR), kemudian penyesuaian.',details:['Bobot target: 60%; bobot realisasi: 40%.','Target baseline menggunakan pertumbuhan 4,75%.','Komponen realisasi merupakan rata-rata dari tiga metode proyeksi realisasi.']},
+ optimis:{title:'Optimis (Kapasitas Riil Kas)',tag:'Pendekatan berbasis realisasi',desc:'Menitikberatkan kemampuan penerimaan berdasarkan pola realisasi historis. Cocok ketika kapasitas layanan dan penerimaan menjadi dasar utama penyusunan usulan.',formula:'Rata-rata dari tiga proyeksi realisasi: rata-rata historis, tren linier, dan CAGR, kemudian penyesuaian.',details:['Tidak menggabungkan target baseline ke dalam hasil usulan.','Menggunakan data realisasi yang tersedia.','Pengaturan proyeksi realisasi setahun penuh tetap mengikuti pilihan pada kontrol.']},
+ kustom:{title:'Kustom (Atur Manual)',tag:'Pengaturan manual',desc:'Gunakan metode dan parameter yang sedang aktif, lalu sesuaikan sendiri sesuai kebutuhan analisis.',formula:'Tidak mengganti metode, pertumbuhan, bobot, maupun penyesuaian yang sedang aktif.',details:['Metode usulan dapat dipilih secara manual.','Pertumbuhan, bobot target, dan penyesuaian dapat diatur pada kontrol.','Perubahan parameter akan langsung memperbarui hasil proyeksi.']}
+};
+function askHScenario(value){
+ const v=String(value||'');
+ if(!v||v===hScen){const sel=$('hscen');if(sel)sel.value=hScen;return;}
+ const info=H_SCENARIO_INFO[v];
+ if(!info){const sel=$('hscen');if(sel)sel.value=hScen;return;}
+ hPendingScenario=v;
+ const title=$('hscenarioTitle'),tag=$('hscenarioTag'),desc=$('hscenarioDesc'),formula=$('hscenarioFormula'),list=$('hscenarioList'),modal=$('hscenarioModal');
+ if(!modal){hPendingScenario=null;setH('s',v);return;}
+ if(title)title.textContent=info.title;
+ if(tag)tag.textContent=info.tag;
+ if(desc)desc.textContent=info.desc;
+ if(formula)formula.textContent=info.formula;
+ if(list)list.innerHTML=info.details.map(x=>`<li>${tc(x)}</li>`).join('');
+ modal.hidden=false;
+ const yes=$('hscenarioYes');if(yes)yes.focus();
+}
+function closeHScenario(){
+ const modal=$('hscenarioModal');if(modal)modal.hidden=true;
+ hPendingScenario=null;
+ const sel=$('hscen');if(sel)sel.value=hScen;
+}
+function confirmHScenario(){
+ const v=hPendingScenario;
+ if(!v)return;
+ const modal=$('hscenarioModal');if(modal)modal.hidden=true;
+ hPendingScenario=null;
+ setH('s',v);
+}
 function setH(k,v){let ctl=false;
  if(k=='s'){hScen=v;const p=H_SCEN[v];if(p){hMeth=p.m;hG=p.g;hW=p.w;hAdj=0}ctl=true}
  else if(k=='m'){hMeth=v;hScen='kustom';ctl=true}
