@@ -3130,6 +3130,58 @@ header p {
   }
 }
 
+
+/* Koreksi akhir lebar kolom histori: jangan paksa tabel 11 kolom ke lebar minimum 1180px.
+   Gunakan lebar intrinsik + scroll horizontal agar angka terakhir tidak terpotong. */
+#hres .hxtab,
+#rdb .hxchildtab{
+  width: max-content !important;
+  min-width: 100% !important;
+  table-layout: auto !important;
+}
+#hres .hxtab th:nth-child(n+3),
+#hres .hxtab td:nth-child(n+3),
+#rdb .hxchildtab th:nth-child(n+3),
+#rdb .hxchildtab td:nth-child(n+3){
+  width: 166px !important;
+  min-width: 166px !important;
+  max-width: none !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  font-variant-numeric: tabular-nums;
+}
+#hres .hxtab th:last-child,
+#hres .hxtab td:last-child,
+#rdb .hxchildtab th:last-child,
+#rdb .hxchildtab td:last-child{
+  width: 154px !important;
+  min-width: 154px !important;
+}
+#hres .hxtab .sortbtn{
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+#hres .scroll,
+#rdb .scroll{
+  overflow-x: auto !important;
+  scrollbar-gutter: stable;
+}
+#hres .hxtab tbody tr.gp td{
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+}
+#hres .hxtab tbody tr.gp td:nth-child(2){
+  padding-left: 16px !important;
+}
+
 </style>
 </head>
 <body>
