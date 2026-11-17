@@ -3088,6 +3088,48 @@ header p {
 #hres .hxtab tbody tr[data-i]:hover td:first-child,#hres .hxtab tbody tr[data-i]:hover td:nth-child(2){background:color-mix(in srgb,var(--card) 82%,#2563eb)}
 @media(max-width:760px){#hres .hxtab th:nth-child(2),#hres .hxtab td:nth-child(2),#rdb .hxchildtab th:nth-child(2),#rdb .hxchildtab td:nth-child(2){width:220px;min-width:220px;max-width:240px}}
 
+
+
+/* Perbaikan jarak angka pada baris Total di tabel Histori & Proyeksi Target.
+   Kolom nominal diberi lebar minimum agar angka total tidak saling berhimpitan. */
+#hres .hxtab th:nth-child(n+3),
+#hres .hxtab td:nth-child(n+3),
+#rdb .hxchildtab th:nth-child(n+3),
+#rdb .hxchildtab td:nth-child(n+3){
+  min-width:148px;
+  padding-left:15px!important;
+  padding-right:15px!important;
+  text-align:right;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+#hres .hxtab tbody tr.gp td{
+  padding-top:13px!important;
+  padding-bottom:13px!important;
+  border-top:2px solid rgba(37,99,235,.48);
+  border-bottom:1px solid var(--line);
+  line-height:1.45;
+  font-weight:800;
+  white-space:nowrap;
+}
+#hres .hxtab tbody tr.gp td:nth-child(2){
+  padding-left:16px!important;
+  letter-spacing:.01em;
+}
+#hres .hxtab tbody tr.gp td.hxu{
+  color:#B45309;
+}
+@media(max-width:760px){
+  #hres .hxtab th:nth-child(n+3),
+  #hres .hxtab td:nth-child(n+3),
+  #rdb .hxchildtab th:nth-child(n+3),
+  #rdb .hxchildtab td:nth-child(n+3){
+    min-width:138px;
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+}
+
 </style>
 </head>
 <body>
