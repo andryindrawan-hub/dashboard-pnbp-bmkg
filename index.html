@@ -3230,6 +3230,22 @@ header p {
   padding-left:12px !important;
 }
 
+
+/* Input manual 2028 dan fasilitas Excel khusus kartu rincian Histori. */
+.pmdh{align-items:center}
+.hxdetail-tools{display:flex;align-items:center;gap:7px;margin-left:auto;flex:none}
+.hxdetail-tools[hidden]{display:none!important}
+.hxdetail-tools .pbt{white-space:nowrap;padding:7px 10px;font-size:11.5px}
+.hximport-label{display:inline-flex;align-items:center;cursor:pointer}.hximport-label input{display:none}
+.hxmanual-cell{min-width:138px!important;width:138px}
+.hxmanual-input{display:block;width:122px;max-width:100%;margin:0 auto;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;font-size:12px;text-align:right;font-variant-numeric:tabular-nums;outline:none}
+.hxmanual-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.13)}
+.hxmanual-footer{position:sticky;bottom:-18px;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px -18px -18px;padding:12px 18px max(12px,env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);box-shadow:0 -5px 14px rgba(23,37,84,.06)}
+.hxmanual-footer small{display:block;color:var(--mute);font-size:10.5px;line-height:1.45;max-width:650px}
+.hxmanual-save{border:0;border-radius:9px;background:#0F766E;color:white;font:inherit;font-size:12.5px;font-weight:700;padding:9px 17px;cursor:pointer;white-space:nowrap}
+.hxmanual-save:hover{filter:brightness(1.06)}
+@media(max-width:640px){.pmdh{align-items:flex-start}.hxdetail-tools{order:3;width:100%;margin-left:0}.hxmanual-input{width:112px}.hxmanual-footer{bottom:-18px}}
+
 </style>
 </head>
 <body>
@@ -3249,7 +3265,7 @@ header p {
 <footer>Dashboard internal Biro Perencanaan BMKG. Sumber data: SIMPONI.</footer>
 </div>
 <div id="t" role="status"></div>
-<div id="rd" class="pmd" role="dialog" aria-modal="true" aria-labelledby="rdt" hidden><div class="pmdc"><div class="pmdh"><div><small id="rds">Rincian per Akun Layanan</small><h3 id="rdt"></h3></div><button id="rdx" class="pmdx" aria-label="Tutup" onclick="closeDet()">&times;</button></div><div id="rdb"></div></div></div>
+<div id="rd" class="pmd" role="dialog" aria-modal="true" aria-labelledby="rdt" hidden><div class="pmdc"><div class="pmdh"><div><small id="rds">Rincian per Akun Layanan</small><h3 id="rdt"></h3></div><div id="hdetail-tools" class="hxdetail-tools" hidden><button type="button" class="pbt" onclick="exportHistDetail()">Unduh Excel</button><label class="pbt hximport-label">Impor Excel<input hidden type="file" accept=".xlsx,.xls" onchange="const f=this.files&&this.files[0];this.value='';if(f)importHistDetailExcel(f)"></label></div><button id="rdx" class="pmdx" aria-label="Tutup" onclick="closeDet()">&times;</button></div><div id="rdb"></div></div></div>
 <div id="hscenarioModal" class="hxscenario-overlay" role="dialog" aria-modal="true" aria-labelledby="hscenarioTitle" aria-describedby="hscenarioDesc" hidden onclick="if(event.target===this)closeHScenario()">
  <section class="hxscenario-card">
   <div class="hxscenario-kicker">KONFIRMASI SKENARIO PROYEKSI</div>
@@ -3514,7 +3530,7 @@ function showAkun(key,title){const a=DETA[key];let body;
  else{let T=0,R=0;a.forEach(x=>{T+=x[1];R+=x[2]});
   body=`<div class="tbl"><div class="scroll"><table class="pnt"><thead><tr><th>No<th>Nama Satker<th>Target (Rp)<th>Realisasi (Rp)<th>Persentase</thead><tbody>${a.map((x,i)=>rowT(i+1,tc(dec(x[0])),x[1],x[2],'','')).join('')}${rowT('','Total',T,R,'gp','')}</tbody></table></div></div>`}
  $('rds').textContent='Rincian Satker per Akun'+(a&&a.length?' \u00b7 '+a.length+' satker':'');$('rdt').textContent=tc(dec(title||key));$('rdb').innerHTML=body;$('rd').hidden=false;try{$('rdx').focus()}catch(e){}}
-function showTarif(key,title){const d=KAT[key];if(!d)return;const rows=DS.tarif.filter(d[1]);let body;
+function showTarif(key,title){const tools=$('hdetail-tools');if(tools)tools.hidden=true;H_MANUAL_CONTEXT=null;const d=KAT[key];if(!d)return;const rows=DS.tarif.filter(d[1]);let body;
  if(!rows.length)body='<div class="note">Belum ada rincian tarif layanan untuk kategori ini.</div>';
  else{let T=0,R=0;rows.forEach(x=>{T+=x[1];R+=x[2]});
   body=`<div class="tbl"><div class="scroll"><table class="pnt"><thead><tr><th>No<th>Layanan<th>Target (Rp)<th>Realisasi (Rp)<th>Persentase</thead><tbody>${rows.map(x=>rowT(x[5],nmCell(x[0]),x[1],x[2],'','')).join('')}${rowT('','Total',T,R,'gp','')}</tbody></table></div></div>`}
@@ -3795,6 +3811,55 @@ function hLine(r,c){const PY=hPY(),ys=[...new Set([...HIST.ty,...HIST.ry,PY])].s
  const last=HIST.ry.filter(y=>r.r[y]!=null).pop();
  const dash=last!=null?`<line x1="${X(last)}" y1="${Y(r.r[last])}" x2="${X(PY)}" y2="${Y(c.usul)}" stroke="#F29B1D" stroke-width="2" stroke-dasharray="5 4"/>`:'';
  return `<svg viewBox="0 0 ${W} ${Hh}" width="100%" role="img" aria-label="Grafik histori">${g}${line(r.t,'#2563EB','Target')}${line(r.r,'#0F766E','Realisasi')}${dash}<circle cx="${X(PY)}" cy="${Y(c.usul)}" r="5" fill="#F29B1D"><title>Usulan ${PY}: Rp${F(c.usul)}</title></circle></svg>`}
+const H_MANUAL_STORAGE_KEY='bmkg_pnbp_hist_manual_2028_v1';
+let H_MANUAL_CONTEXT=null;
+function hManualNorm(v){return String(v==null?'':v).normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\u00A0/g,' ').replace(/\s+/g,' ').trim().toLocaleLowerCase('id-ID')}
+function hManualKey(mode,parent,child,province=''){return JSON.stringify([mode,parent,child,province].map(hManualNorm))}
+function hManualRead(){try{const x=JSON.parse(localStorage.getItem(H_MANUAL_STORAGE_KEY)||'{}');return x&&typeof x==='object'&&!Array.isArray(x)?x:{}}catch(e){return {}}}
+function hManualWrite(data){try{localStorage.setItem(H_MANUAL_STORAGE_KEY,JSON.stringify(data));return true}catch(e){notify('Penyimpanan browser tidak tersedia atau penuh. Unduh Excel sebagai cadangan.');return false}}
+function hManualNumber(v){if(v==null||String(v).trim()==='')return null;const n=typeof v==='number'?v:parseNum(v);return Number.isFinite(n)&&n>=0?n:null}
+function hManualSetStatus(message){const el=$('hxmanual-status');if(el)el.textContent=message}
+function saveHistManual(){
+ if(!H_MANUAL_CONTEXT)return;
+ const data=hManualRead(),inputs=[...document.querySelectorAll('#rdb [data-hmanual-index]')];
+ for(const input of inputs){
+  const i=Number(input.dataset.hmanualIndex),item=H_MANUAL_CONTEXT.children[i];if(!item)continue;
+  const raw=String(input.value||'').trim(),key=item.key;
+  if(!raw){delete data[key];continue}
+  const value=hManualNumber(raw);
+  if(value==null){input.focus();hManualSetStatus('Periksa angka pada baris '+(i+1)+'. Gunakan angka 0 atau lebih.');return}
+  data[key]=value;
+ }
+ if(hManualWrite(data)){hManualSetStatus('Isian berhasil disimpan pada browser ini.');notify('Isian manual berhasil disimpan.');}
+}
+function exportHistDetail(){
+ if(typeof XLSX==='undefined'){notify('Pustaka Excel belum termuat.');return}
+ if(!H_MANUAL_CONTEXT||!H_MANUAL_CONTEXT.children.length){notify('Tidak ada rincian untuk diekspor.');return}
+ const ctx=H_MANUAL_CONTEXT,store=hManualRead(),liveInputs=[...document.querySelectorAll('#rdb [data-hmanual-index]')];liveInputs.forEach(input=>{const item=ctx.children[Number(input.dataset.hmanualIndex)];if(!item)return;const raw=String(input.value||'').trim();if(!raw)delete store[item.key];else{const v=hManualNumber(raw);if(v!=null)store[item.key]=v}});const hd=['Mode','Nama Induk','Nama Layanan/Satker','Provinsi','Target 2024','Realisasi 2024','Target 2025','Realisasi 2025','Target 2026','Realisasi 2026','Target 2027','Usulan Target 2028','Vs Target 2027 (%)','Input Manual 2028 (Rp)'],data=[hd];
+ ctx.children.forEach(item=>{
+  const x=item.row,c=hCalc(x),t2027=x.t&&x.t[2027],vs=t2027>0?(c.usul-t2027)/t2027*100:null;
+  data.push([ctx.mode,ctx.parent,x.name||'',x.province||'',x.t?.[2024]??null,x.r?.[2024]??null,x.t?.[2025]??null,x.r?.[2025]??null,x.t?.[2026]??null,x.r?.[2026]??null,t2027??null,c.usul,vs,store[item.key]??null]);
+ });
+ const ws=XLSX.utils.aoa_to_sheet(data);ws['!cols']=[{wch:12},{wch:42},{wch:48},{wch:24},...Array(9).fill({wch:20}),{wch:24}];
+ const guide=[['Petunjuk pengisian'],['Isi hanya kolom "Input Manual 2028 (Rp)" dengan angka.'],['Jangan mengubah kolom Mode, Nama Induk, Nama Layanan/Satker, dan Provinsi karena digunakan untuk mencocokkan data saat impor.'],['Setelah selesai, simpan file Excel lalu gunakan tombol "Impor Excel" pada kartu rincian.'],['Nilai manual disimpan terpisah dan tidak mengubah data sumber Google Sheets maupun formula Usulan Target 2028.']];
+ const wi=XLSX.utils.aoa_to_sheet(guide);wi['!cols']=[{wch:115}];
+ const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Input Manual');XLSX.utils.book_append_sheet(wb,wi,'Petunjuk');
+ try{const buf=XLSX.write(wb,{bookType:'xlsx',type:'array'}),blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='Input_Manual_Usulan_PNBP_2028.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);notify('Template Excel rincian berhasil diunduh.')}catch(e){notify('Unduhan Excel gagal. Coba lagi.')}
+}
+async function importHistDetailExcel(file){
+ if(!file)return;
+ if(typeof XLSX==='undefined'){notify('Pustaka Excel belum termuat.');return}
+ try{
+  const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});let rows=null,ix=null;
+  for(const sheetName of wb.SheetNames){const grid=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:''});for(let ri=0;ri<Math.min(grid.length,8);ri++){const h=grid[ri].map(hManualNorm),a={mode:h.indexOf('mode'),parent:h.indexOf('nama induk'),child:h.indexOf('nama layanan/satker'),province:h.indexOf('provinsi'),manual:h.findIndex(x=>x==='input manual 2028 (rp)'||x==='input manual 2028'||x==='usulan manual 2028 (rp)')};if(a.mode>=0&&a.parent>=0&&a.child>=0&&a.manual>=0){rows=grid.slice(ri+1);ix=a;break}}if(rows)break}
+  if(!rows||!ix)throw new Error('Header template tidak dikenali. Gunakan file Excel yang diunduh dari kartu ini.');
+  const data=hManualRead();let count=0,ignored=0;
+  rows.forEach(row=>{const mode=String(row[ix.mode]||'').trim(),parent=String(row[ix.parent]||'').trim(),child=String(row[ix.child]||'').trim(),province=ix.province>=0?String(row[ix.province]||'').trim():'';if(!['satker','layanan'].includes(mode)||!parent||!child){ignored++;return}const key=hManualKey(mode,parent,child,province),raw=row[ix.manual];if(raw==null||String(raw).trim()===''){delete data[key];count++;return}const value=hManualNumber(raw);if(value==null){ignored++;return}data[key]=value;count++});
+  if(!hManualWrite(data))return;
+  refreshHistManualInputs();hManualSetStatus(count+' baris diproses dari Excel.');notify(count+' isian Excel berhasil diproses.'+(ignored?' '+ignored+' baris dilewati.':''));
+ }catch(e){notify(e&&e.message?e.message:'File Excel tidak dapat dibaca.')}
+}
+function refreshHistManualInputs(){if(!H_MANUAL_CONTEXT)return;const data=hManualRead();document.querySelectorAll('#rdb [data-hmanual-index]').forEach(input=>{const item=H_MANUAL_CONTEXT.children[Number(input.dataset.hmanualIndex)];if(item)input.value=data[item.key]==null?'':F(data[item.key])})}
 function showHist(i){
  const r=H_ACTIVE_ROWS[i];if(!r)return;const c=hCalc(r),PY=hPY(),lt=HIST.ty[HIST.ty.length-1],tl=r.t[lt],sg=v=>tl>0?((v-tl)/tl>=0?'+':'\u2212')+Math.abs((v-tl)/tl*100).toLocaleString('id-ID',{maximumFractionDigits:1})+'%':'-';
  const ys=[...new Set([...HIST.ty,...HIST.ry])].sort();
@@ -3806,9 +3871,13 @@ function showHist(i){
  const childYears=[...new Set([...HIST.ty,...HIST.ry])].sort((a,b)=>a-b);
  const childVs=(usul,target)=>target>0?(usul-target)/target:null;
  const childPct=v=>v==null?'-':(v>=0?'+':'\u2212')+Math.abs(v*100).toLocaleString('id-ID',{maximumFractionDigits:1})+'%';
- const childTable=children.length?`<div class="tbl" style="margin-top:10px"><div class="scroll"><table class="pnt hxchildtab"><thead><tr><th scope="col">No</th><th scope="col">${hMode==='satker'?'Layanan':'Nama Satker'}</th>${childYears.map(y=>(HIST.ty.includes(y)?`<th scope="col">Target ${y}</th>`:'')+(HIST.ry.includes(y)?`<th scope="col">Realisasi ${y}</th>`:'')).join('')}<th scope="col">Usulan Target ${PY}</th><th scope="col">vs Target 2027</th></tr></thead><tbody>${children.map((x,j)=>{const cx=hCalc(x),target2027=x.t[2027],vs=childVs(cx.usul,target2027);return `<tr><td>${j+1}</td><td>${tc(dec(x.name))}${hMode==='layanan'&&x.province?` <small style="color:var(--mute)">${tc(dec(x.province))}</small>`:''}</td>${childYears.map(y=>(HIST.ty.includes(y)?`<td>${x.t[y]==null?'-':F(x.t[y])}</td>`:'')+(HIST.ry.includes(y)?`<td>${x.r[y]==null?'-':F(x.r[y])}</td>`:'')).join('')}<td class="hxu">${cx.usul>0?F(cx.usul):'-'}</td><td class="${vs==null?'':vs>=0?'hxup':'hxdn'}">${childPct(vs)}</td></tr>`}).join('')}</tbody></table></div></div>`:'<div class="note">Rincian belum tersedia.</div>';
+ H_MANUAL_CONTEXT={mode:hMode,parent:r.name,children:children.map(x=>({name:x.name,province:x.province||'',row:x,key:hManualKey(hMode,r.name,x.name,x.province||'')}))};
+ const manualData=hManualRead();
+ const childTable=children.length?`<div class="tbl" style="margin-top:10px"><div class="scroll"><table class="pnt hxchildtab"><thead><tr><th scope="col">No</th><th scope="col">${hMode==='satker'?'Layanan':'Nama Satker'}</th>${childYears.map(y=>(HIST.ty.includes(y)?`<th scope="col">Target ${y}</th>`:'')+(HIST.ry.includes(y)?`<th scope="col">Realisasi ${y}</th>`:'')).join('')}<th scope="col">Usulan Target ${PY}</th><th scope="col">vs Target 2027</th><th scope="col" class="hxmanual-cell">Input Manual 2028 (Rp)</th></tr></thead><tbody>${children.map((x,j)=>{const cx=hCalc(x),target2027=x.t[2027],vs=childVs(cx.usul,target2027),key=H_MANUAL_CONTEXT.children[j].key,manual=manualData[key];return `<tr><td>${j+1}</td><td>${tc(dec(x.name))}${hMode==='layanan'&&x.province?` <small style="color:var(--mute)">${tc(dec(x.province))}</small>`:''}</td>${childYears.map(y=>(HIST.ty.includes(y)?`<td>${x.t[y]==null?'-':F(x.t[y])}</td>`:'')+(HIST.ry.includes(y)?`<td>${x.r[y]==null?'-':F(x.r[y])}</td>`:'')).join('')}<td class="hxu">${cx.usul>0?F(cx.usul):'-'}</td><td class="${vs==null?'':vs>=0?'hxup':'hxdn'}">${childPct(vs)}</td><td class="hxmanual-cell"><input class="hxmanual-input" type="text" inputmode="decimal" autocomplete="off" placeholder="Isi angka" aria-label="Input manual ${esc(x.name)}" data-hmanual-index="${j}" value="${manual==null?'':esc(F(manual))}"></td></tr>`}).join('')}</tbody></table></div></div>`:'<div class="note">Rincian belum tersedia.</div>';
+ const manualFooter=children.length?`<div class="hxmanual-footer"><div><strong style="font-size:12px">Input manual 2028</strong><small>Isi nilai pada kolom terakhir, lalu tekan Simpan. Data manual disimpan di browser/perangkat ini dan tidak mengubah angka sumber Google Sheets atau rumus proyeksi.</small><small id="hxmanual-status" aria-live="polite"></small></div><button type="button" class="hxmanual-save" onclick="saveHistManual()">Simpan</button></div>`:'';
+
  const body=(c.n||c.hasT)?`<div class="hxm"><div class="hxchart">${hLine(r,c)}<div class="hxlg"><span><i style="background:#2563EB"></i>Target</span><span><i style="background:#0F766E"></i>Realisasi</span><span><i style="background:#F29B1D"></i>Usulan ${PY}</span></div></div><div class="hxtable-history"><div class="tbl"><div class="scroll">${dt}</div></div></div></div><section class="hxmethod"><div class="hxmethod-head"><h3>Perbandingan Metode Usulan ${PY}</h3><span>Baris tebal menunjukkan metode yang dipilih</span></div><div class="tbl"><div class="scroll">${mt}</div></div><p class="gxtx">Penyesuaian ${hAdj>=0?'+':''}${hAdj}% sudah diterapkan pada setiap metode.</p></section>`:'<div class="note">Data histori belum mencukupi untuk menghitung usulan target.</div>';
- $('rds').textContent='Histori & Usulan Target '+PY+' · '+childTitle;$('rdt').textContent=tc(dec(r.name));$('rdb').innerHTML=body+`<h3 style="font-size:14px;margin:18px 0 8px">${childTitle} (${children.length})</h3>${childTable}`;$('rd').hidden=false;try{$('rdx').focus()}catch(e){}
+ $('rds').textContent='Histori & Usulan Target '+PY+' · '+childTitle;$('rdt').textContent=tc(dec(r.name));$('rdb').innerHTML=body+`<h3 style="font-size:14px;margin:18px 0 8px">${childTitle} (${children.length})</h3>${childTable}${manualFooter}`;const tools=$('hdetail-tools');if(tools)tools.hidden=!children.length;$('rd').hidden=false;try{$('rdx').focus()}catch(e){}
 }
 async function exportHist(){if(typeof XLSX=='undefined'){notify('Pustaka Excel belum termuat, coba lagi sebentar.');return}
  const PY=hPY(),lt=HIST.ty[HIST.ty.length-1],L=sortRows(hList(),'hist'),T=hTot(L),sc=H_SCEN[hScen]?H_SCEN[hScen].n:'Kustom',KM={tusi:'Tusi',omc:'Modifikasi Cuaca',non:'Non Tusi'};
@@ -3885,12 +3954,12 @@ function togG(k,i,tr){const key=k+':'+i;openG[key]=!openG[key];const op=!openG[k
 function togAll(k){const gs=groupsOf(k).filter(g=>g.c.length),anyShut=gs.some(g=>openG[k+':'+g.i]);gs.forEach(g=>{openG[k+':'+g.i]=!anyShut});$('tw').innerHTML=repTable(k);updTg(k)}
 
 /* ===== Kartu rincian akun layanan per satker ===== */
-function showDet(name){const a=DET[detKey(name)],nm=tc(dec(name).replace(/^\d+\s*-\s*/,''));let body;
+function showDet(name){const tools=$('hdetail-tools');if(tools)tools.hidden=true;H_MANUAL_CONTEXT=null;const a=DET[detKey(name)],nm=tc(dec(name).replace(/^\d+\s*-\s*/,''));let body;
  if(!a||!a.length)body='<div class="note">Rincian akun layanan belum tersedia untuk satuan kerja ini. Rincian muncul saat dashboard terhubung langsung ke Google Sheets.</div>';
  else{let T=0,R=0;a.forEach(x=>{T+=x[1];R+=x[2]});const anyC=a.some(x=>kodeAkun(x[0])),rows=[...a].sort((x,y)=>y[2]-x[2]).map(x=>rowG(esc(x[0])+(anyC&&isTusi(x[0])?' <span class="ptg">Tusi</span>':''),x[1],x[2],'','','')).join('');let TR=0;a.forEach(x=>{if(isTusi(x[0]))TR+=x[2]});
   body=(anyC?`<p class="sub" style="margin:0 0 10px">Realisasi akun Tusi (dasar peringkat): <b>${F(TR)}</b> dari total <b>${F(R)}</b></p>`:'')+`<div class="tbl"><div class="scroll"><table><thead><tr><th>Akun Layanan<th>Target (Rp)<th>Realisasi (Rp)<th>Persentase</thead><tbody>${rows}${rowG('Total',T,R,'gp','','')}</tbody></table></div></div>`}
  $('rds').textContent='Rincian per Akun Layanan';$('rdt').textContent=nm;$('rdb').innerHTML=body;$('rd').hidden=false;try{$('rdx').focus()}catch(e){}}
-function closeDet(){$('rd').hidden=true}
+function closeDet(){$('rd').hidden=true;const tools=$('hdetail-tools');if(tools)tools.hidden=true;H_MANUAL_CONTEXT=null}
 $('rd').addEventListener('click',e=>{if(e.target==$('rd'))closeDet()});
 document.addEventListener('keydown',e=>{if(e.key=='Escape'&&!$('rd').hidden)closeDet()});
 $('v').addEventListener('click',e=>{if(cur=='hist'||cur=='tren'){const td=e.target.closest&&e.target.closest('td:nth-child(2)');if(td&&td.closest('tbody')&&td.parentElement.dataset.i!=null)showHist(+td.parentElement.dataset.i);return}if(cur=='akun'){const td=e.target.closest&&e.target.closest('td:nth-child(2)');if(td&&td.closest('tbody')&&td.parentElement.dataset.k!=null)showAkun(td.parentElement.dataset.k,td.parentElement.dataset.t);return}if(cur=='nol'){const td=e.target.closest&&e.target.closest('td:nth-child(2)');if(td&&td.closest('tbody')&&td.parentElement.dataset.k)showNol(td.parentElement.dataset.k);return}if(cur=='tusi'){const tr=e.target.closest&&e.target.closest('tr[data-g]');if(tr&&!e.target.closest('button'))showTarif(tr.dataset.g,tr.dataset.t);return}if(cur!='satker')return;const td=e.target.closest&&e.target.closest('td:nth-child(2)');if(td&&td.closest('tbody'))showDet(td.textContent.trim())});
