@@ -3266,6 +3266,74 @@ header p {
 #rdb .hxmanual-footer small{max-width:720px}
 @media(max-width:640px){#rdb .hxmanual-footer{bottom:0;margin-left:-18px;margin-right:-18px}.hxparent-target-input{width:88px}}
 
+
+
+/* Histori & Proyeksi Target: bungkus teks seluruh header agar judul kolom tidak terpotong. */
+#hres .hxtab thead th,
+#rdb .hxchildtab thead th,
+#rdb .hxparent-summary thead th,
+#rdb .hxmethod .pnt thead th{
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  word-break:normal !important;
+  height:auto !important;
+  min-height:48px;
+  padding:8px 6px !important;
+  line-height:1.25 !important;
+  vertical-align:middle !important;
+  text-align:center !important;
+}
+#hres .hxtab thead th:first-child,
+#rdb .hxchildtab thead th:first-child,
+#rdb .hxparent-summary thead th:first-child{
+  text-align:center !important;
+}
+#hres .hxtab thead th:nth-child(2),
+#rdb .hxchildtab thead th:nth-child(2){
+  text-align:left !important;
+}
+#hres .hxtab thead th .sortbtn,
+#rdb .hxchildtab thead th .sortbtn,
+#rdb .hxchildtab thead th .hxdetail-sortbtn,
+#rdb .hxparent-summary thead th .sortbtn,
+#rdb .hxmethod .pnt thead th .sortbtn{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  word-break:normal !important;
+  text-overflow:clip !important;
+  overflow:visible !important;
+  line-height:1.25 !important;
+  text-align:inherit !important;
+  padding:0 !important;
+}
+#hres .hxtab thead th:nth-child(n+3),
+#rdb .hxchildtab thead th:nth-child(n+3){
+  min-width:112px !important;
+  max-width:148px !important;
+}
+#hres .hxtab thead th:nth-child(3),
+#rdb .hxchildtab thead th:last-child{
+  overflow-wrap:anywhere !important;
+}
+#hres .hxtab thead th:first-child,
+#rdb .hxchildtab thead th:first-child{
+  min-width:58px !important;
+  max-width:58px !important;
+}
+@media(max-width:760px){
+  #hres .hxtab thead th,
+  #rdb .hxchildtab thead th,
+  #rdb .hxparent-summary thead th,
+  #rdb .hxmethod .pnt thead th{
+    padding:7px 5px !important;
+    font-size:11px !important;
+    line-height:1.2 !important;
+  }
+}
+
 </style>
 </head>
 <body>
